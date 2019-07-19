@@ -74,7 +74,7 @@ py::str CContext::GetSecurityToken(void)
 
   if (token.IsEmpty())
   {
-    return py::str(py::handle<>(Py_None));
+    return py::str();
   }
   else
   {
