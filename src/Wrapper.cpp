@@ -21,7 +21,14 @@ void CWrapper::Expose(void)
     .def("__setattr__", &CJavascriptObject::SetAttr)
     .def("__delattr__", &CJavascriptObject::DelAttr)    
 
-    .def_readonly("__members__", &CJavascriptObject::GetAttrList)
+    .add_property("__members__", &CJavascriptObject::GetAttrList)
+
+     // Emulating dict object
+    .def("keys", &CJavascriptObject::GetAttrList, "Get a list of an object's attributes.")
+
+    .def("__getitem__", &CJavascriptObject::GetAttr)
+    .def("__setitem__", &CJavascriptObject::SetAttr)
+    .def("__delitem__", &CJavascriptObject::DelAttr)
 
     .def(int_(py::self))
     .def(float_(py::self))
@@ -55,8 +62,12 @@ void CWrapper::Expose(void)
          (py::arg("self"), 
           py::arg("args") = py::list(), 
           py::arg("kwds") = py::dict()))
-    .add_property("func_name", &CJavascriptFunction::GetName)
-    .add_property("func_owner", &CJavascriptFunction::GetOwner)
+    .def("invoke", &CJavascriptFunction::Invoke,
+         (py::arg("args") = py::list(),
+          py::arg("kwds") = py::dict()),
+          "Performs a binding method call using the parameters.")
+    .add_property("name", &CJavascriptFunction::GetName)
+    .add_property("owner", &CJavascriptFunction::GetOwner)
     ;
 
   py::objects::class_value_wrapper<boost::shared_ptr<CJavascriptObject>, 
@@ -371,9 +382,9 @@ v8::Handle<v8::Value> CPythonObject::Wrap(py::object obj)
   {
     result = v8::Boolean::New(py::extract<bool>(obj));
   }
-  else if (PyString_Check(obj.ptr()))
+  else if (PyMapping_Check(obj.ptr()))
   {
-    result = v8::String::New(PyString_AS_STRING(obj.ptr()));
+    result = v8::String::New(PyBytes_AS_STRING(obj.ptr()));
   }
   else if (PyUnicode_Check(obj.ptr()))
   {
