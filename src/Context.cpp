@@ -1,17 +1,18 @@
 #include "Context.h"
-
 #include "Wrapper.h"
 #include "Engine.h"
 
+
 void CContext::Expose(void)
 {
-  py::class_<CContext, boost::noncopyable>("JSContext", py::no_init)
-    .def(py::init<py::object>(py::arg("global") = py::object(), 
-                              "create a new context base on global object"))
-                  
+   py::class_<CContext, boost::noncopyable>("JSContext", "JSContext is an execution context.", py::no_init)
+     .def(py::init<const CContext&>("create a new context based on a existing context"))
+     .def(py::init<py::object>(py::arg("global") = py::object(),
+                              "create a new context based on global object"))
+
     .add_property("securityToken", &CContext::GetSecurityToken, &CContext::SetSecurityToken)
 
-    .def_readonly("locals", &CContext::GetGlobal, "Local variables within context")
+    .add_property("locals", &CContext::GetGlobal, "Local variables within context")
     
     .add_static_property("entered", &CContext::GetEntered, 
                          "Returns the last entered context.")
@@ -103,6 +104,7 @@ CContextPtr CContext::GetEntered(void)
 
   return CContextPtr(new CContext(v8::Context::GetEntered())); 
 }
+
 CContextPtr CContext::GetCurrent(void) 
 { 
   v8::HandleScope handle_scope;
