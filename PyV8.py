@@ -32,6 +32,7 @@ class JSError(Exception):
 _PyV8._JSError._jsclass = JSError
 
 JSArray = _PyV8.JSArray
+JSObject = _PyV8.JSObject
 
 class JSClass(object):    
     def toString(self):
