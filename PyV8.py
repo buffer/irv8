@@ -2,7 +2,11 @@
 from __future__ import with_statement
 
 import sys
-import StringIO
+
+try:
+    from StringIO import StringIO
+except:
+    from io import StringIO
 
 import _PyV8
 
@@ -208,7 +212,7 @@ class JSDebug(object):
             return JSDebug.Frames(self)
         
         def __str__(self):
-            s = StringIO.StringIO()
+            s = StringIO()
             
             try:
                 for frame in self.frames:
