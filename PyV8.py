@@ -5,7 +5,7 @@ import sys
 
 try:
     from StringIO import StringIO
-except:
+except ImportError:
     from io import StringIO
 
 import _PyV8
